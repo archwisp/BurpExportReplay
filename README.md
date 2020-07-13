@@ -30,25 +30,29 @@ The example below simply loads the files specified on the command-line,
 replaces some headers and body content, and re-sends the requests through the
 specified proxy.
 
+***examples/replace-and-resend.py:***
 ```
-import sys from burpexportreplay import burpexport, burpreplay 
+import sys
+from burpexportreplay import burpexport, burpreplay 
 
-if len(sys.argv) == 1: print("Usage: %s file1.xml {file2.xml file3.xml ...}" %
-(sys.argv[0]))
+if len(sys.argv) == 1:
+    print("Usage: %s file1.xml {file2.xml file3.xml ...}" % (sys.argv[0]))
 
-files = sys.argv[1:] items = burpexport.loadItems(files)
+files = sys.argv[1:]
+items = burpexport.loadItems(files)
+# items = items[0:1]
 
-for item in items: request = burpexport.getItemRequest(item) request =
-burpreplay.updateRequestCookie(request, b'ASP.NET_SessionId', b'FAKESESSION')
-request = burpreplay.updateRequestCookie(request, b'.ASPXAUTH', b'FAKEAUTHT')
-request = burpreplay.updateRequestHeader(request, b'User-Agent', b'FAKEAGENT')
-request = burpreplay.updateRequestAuthorization(request, b'bearer',
-b'FAKEAUTHORIZATION') request = burpreplay.updateRequestBody(request,
-b'FAKEDATA') request = burpreplay.updateRequestXCsrfToken(request,
-b'FAKETOKEN') burpreplay.replaceItemRequest(item, request)
+for item in items:
+    request = burpexport.getItemRequest(item)
+    request = burpreplay.updateRequestCookie(request, b'ASP.NET_SessionId', b'FAKESESSION')
+    request = burpreplay.updateRequestCookie(request, b'.ASPXAUTH', b'FAKEAUTHT')
+    request = burpreplay.updateRequestHeader(request, b'User-Agent', b'FAKEAGENT')
+    request = burpreplay.updateRequestAuthorization(request, b'bearer', b'FAKEAUTHORIZATION')
+    request = burpreplay.updateRequestBody(request, b'FAKEDATA')
+    request = burpreplay.updateRequestXCsrfToken(request, b'FAKETOKEN')
+    burpreplay.replaceItemRequest(item, request)
 
-burpreplay.resendItems(items, threads=5, proxy_host='127.0.0.1',
-proxy_port='8080')
+burpreplay.resendItems(items, threads=5, proxy_host='127.0.0.1', proxy_port='8080')
 ```
 
 That's it!
