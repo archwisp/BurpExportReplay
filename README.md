@@ -17,7 +17,7 @@ requests through it, and using Logger++ to assist in review of the results. The
 goal is to automate the re-send but review the responses manually.
 
 ## Example 
-There are a few examples in the `./examples/ directory`, but I'll go through a
+There are a few examples in the `./examples/` directory, but I'll go through a
 simple example to show how this works.
 
 To get started, we need a file containing burp items in it. There is an example
@@ -64,5 +64,7 @@ reflect those changes immediately, without having to reinstall.
 
 If you want a more trasitional pip install, remove the `-e` flag.  
 ``` 
+git clone https://github.com/archwisp/BurpExportReplay.git
+cd BurpExportReplay
 python3 -m pip install -e .
 ```
