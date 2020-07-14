@@ -7,12 +7,11 @@ if len(sys.argv) == 1:
 
 files = sys.argv[1:]
 items = burpexport.loadItems(files)
-# items = items[0:1]
 
 for item in items:
     request = burpexport.getItemRequest(item)
     request = burpreplay.updateRequestCookie(request, b'ASP.NET_SessionId', b'FAKESESSION')
-    request = burpreplay.updateRequestCookie(request, b'.ASPXAUTH', b'FAKEAUTHT')
+    request = burpreplay.updateRequestCookie(request, b'.ASPXAUTH', b'FAKEAUTH')
     request = burpreplay.updateRequestHeader(request, b'User-Agent', b'FAKEAGENT')
     request = burpreplay.updateRequestAuthorization(request, b'bearer', b'FAKEAUTHORIZATION')
     request = burpreplay.updateRequestBody(request, b'FAKEDATA')
