@@ -116,28 +116,32 @@ def replaceItemRequest(item, request):
     replaceXmlTagData(item, 'request', base64.b64encode(request))
 
 def updateRequestHost(request, host, port):
-    return re.sub(b'(Host:) (.*)', rb'\1 ' + host + ':' + port + b'\r', request)
+    return re.sub(b'(Host:) (.*)', rb'\1 ' + host + b':' + bytes(str(port), "ascii") + b'\r\n', request)
+
+def addRequestHeader(request, header, value):
+    parts = request.split(b'\x0d\x0a\x0d\x0a')
+    return parts[0][:-4] + b'\r\n' + header + b': ' + value + b'\r\n' + b'\x0d\x0a\x0d\x0a' + parts[1]
 
 def updateRequestHeader(request, header, value):
-    return re.sub(b'(' + header + b': ).*?\n', br'\1' + value + b'\\r\\n', request)
+    return re.sub(b'(' + header + b': ).*?\n', br'\1' + value + b'\r\n', request)
 
 def updateRequestUserAgent(request, value):
-    return re.sub(b'(User-Agent: ).*?\n', br'\1' + value + b'\\r\\n', request)
+    return re.sub(b'(User-Agent: ).*?\n', br'\1' + value + b'\r\n', request)
 
 def updateRequestContentLength(request):
-    return re.sub(b'(Content-Length: )(\d+)', br'\1' + len(request).to_bytes(8, "little"), request)
+    return re.sub(b'(Content-Length: )(\\d+)', b'Content-Length: ' + bytes(str(len(request.split(b'\x0d\x0a\x0d\x0a')[1])), "ascii"), request)
 
 def updateRequestAuthorization(request, name, value):
-    return re.sub(b'(Authorization:.*?)(' + name + b'=.*?)([;|\n])', br'\1' + name + b'=' + value + br'\3', request)
+    return re.sub(b'(Authorization:.*?)(' + name + b' .*?)([;|\r\n])', br'\1' + name + b' ' + value + br'\3', request)
 
 def updateRequestXCsrfToken(request, value):
-    return re.sub(b'(X\-CSRF\-TOKEN: ).*?\n', br'\1' + value + b'\\r\\n', request)
+    return re.sub(b'(X\\-CSRF\\-TOKEN: ).*?\n', br'\1' + value + b'\r\n', request)
 
 def updateRequestCookie(request, cookie, value):
-    return re.sub(b'(Cookie:.*?)(' + cookie + b'=.*?)([;|\n])', rb'\1'+ cookie + b'=' + value + rb'\3', request)
+    return re.sub(b'(Cookie:.*?)(' + cookie + b'=.*?)([;|\n])', br'\1'+ cookie + b'=' + value + br'\3', request)
 
 def updateRequestBody(request, data):
-    return re.sub(b'(\r\n\r\n).*$', br'\1'+ data, request)
+    return request.split(b'\x0d\x0a\x0d\x0a')[0] + b'\x0d\x0a\x0d\x0a' + data + b'\x0a'
 
 def updateRequestSoapParameter(request, parameter, payload):
-    return re.sub(b'(<' + parameter + b'>)(.*?)(</' + parameter + b'>)', rb'\1' + urllib.quote(payload) + rb'\3', request)
+    return re.sub(b'(<' + parameter + b'>)(.*?)(</' + parameter + b'>)', br'\1' + urllib.quote(payload) + br'\3', request)
